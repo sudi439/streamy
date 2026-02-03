@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Player - SaintStream</title>
+    <link rel="stylesheet" href="player-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <div class="logo">
+                    <span class="logo-icon">SS</span>
+                    <span class="logo-text">SaintStream</span>
+                </div>
+            </div>
+            <div class="nav-center">
+                <a href="saintstream.html" class="nav-link">Home</a>
+                <a href="#" class="nav-link">Discover</a>
+                <a href="#" class="nav-link">Movie Release</a>
+                <a href="#" class="nav-link">Forum</a>
+                <a href="#" class="nav-link">About</a>
+            </div>
+            <div class="nav-right">
+                <i class="fas fa-search"></i>
+                <i class="fas fa-bell"></i>
+                <div class="profile-icon">
+                    <img src="https://via.placeholder.com/40" alt="Profile">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Movie Player Section -->
+    <section class="player-section">
+        <div class="player-container">
+            <!-- Source Selector -->
+            <div class="source-selector">
+                <div class="source-label">Server:</div>
+                <select id="source-select" onchange="changeSource()">
+                    <option value="2embed">Server 1 - 2Embed (Fast)</option>
+                    <option value="vidsrc">Server 2 - VidSrc (HD)</option>
+                    <option value="embedsoap">Server 3 - EmbedSoap</option>
+                    <option value="autoembed">Server 4 - AutoEmbed</option>
+                </select>
+                <button class="refresh-btn" onclick="reloadPlayer()">
+                    <i class="fas fa-sync-alt"></i> Reload
+                </button>
+                <div class="player-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span>If video doesn't load, try switching servers</span>
+                </div>
+            </div>
+            
+            <div class="video-player" id="video-player">
+                <!-- Video player will be loaded here -->
+                <div class="player-placeholder">
+                    <i class="fas fa-play-circle"></i>
+                    <p>Click "Watch Now" to start streaming</p>
+                    <p class="player-note">Multiple streaming sources available</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Movie Info Section -->
+    <section class="movie-info-section">
+        <div class="container">
+            <div class="movie-header">
+                <div class="movie-poster-small">
+                    <img id="movie-poster" src="" alt="Movie Poster">
+                </div>
+                <div class="movie-details">
+                    <h1 class="movie-title" id="movie-title">Loading...</h1>
+                    <div class="movie-meta" id="movie-meta">
+                        <span class="rating"><i class="fas fa-star"></i> <span id="rating">0</span></span>
+                        <span class="year" id="year">2024</span>
+                        <span class="duration" id="duration">0h 0m</span>
+                        <span class="genre" id="genre">Action</span>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button class="action-btn primary" onclick="playMovie()">
+                            <i class="fas fa-play"></i> Watch Now
+                        </button>
+                        <button class="action-btn secondary" onclick="playTrailer()">
+                            <i class="fas fa-film"></i> Watch Trailer
+                        </button>
+                        <button class="action-btn secondary" onclick="downloadMovie()">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                        <button class="action-btn secondary" onclick="addToWatchlist()">
+                            <i class="fas fa-bookmark"></i> Save
+                        </button>
+                        <button class="action-btn secondary" onclick="addToList()">
+                            <i class="fas fa-plus"></i> Add to List
+                        </button>
+                        <button class="action-btn secondary" onclick="shareMovie()">
+                            <i class="fas fa-share-alt"></i> Share
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="description-section">
+                <h2>Description</h2>
+                <p id="movie-description">Loading movie description...</p>
+            </div>
+
+            <!-- Trailer Section -->
+            <div class="trailer-section">
+                <h2>Trailer</h2>
+                <div class="trailer-container" id="trailer-container">
+                    <div class="trailer-placeholder">
+                        <i class="fas fa-play-circle"></i>
+                        <p>Trailer will load here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cast Section -->
+            <div class="cast-section">
+                <h2>Cast & Crew</h2>
+                <div class="cast-grid" id="cast-grid">
+                    <!-- Cast members will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Similar Movies -->
+            <div class="similar-section">
+                <h2>Similar Movies</h2>
+                <div class="similar-grid" id="similar-grid">
+                    <!-- Similar movies will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="player-script.js"></script>
+</body>
+</html>

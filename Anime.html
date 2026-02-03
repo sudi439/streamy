@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime - SaintStream</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <div class="logo">
+                    <span class="logo-icon">SS</span>
+                    <span class="logo-text">SaintStream</span>
+                </div>
+            </div>
+            <div class="nav-center">
+                <a href="saintstream.html" class="nav-link">Home</a>
+                <a href="movies.html" class="nav-link">Movies</a>
+                <a href="series.html" class="nav-link">Series</a>
+                <a href="anime.html" class="nav-link active">Anime</a>
+            </div>
+            <div class="nav-right">
+                <i class="fas fa-search"></i>
+                <i class="fas fa-bell"></i>
+                <div class="profile-icon">
+                    <img src="https://via.placeholder.com/40" alt="Profile">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Anime</h1>
+            <p>Watch the latest and greatest anime series</p>
+        </div>
+    </section>
+
+    <!-- Popular Anime -->
+    <section class="content-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Popular Anime</h2>
+                <div class="section-arrows">
+                    <button class="arrow-btn" onclick="scrollSection('popular-anime', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="arrow-btn" onclick="scrollSection('popular-anime', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="movie-grid" id="popular-anime"></div>
+        </div>
+    </section>
+
+    <!-- Top Rated Anime -->
+    <section class="content-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Top Rated Anime</h2>
+                <div class="section-arrows">
+                    <button class="arrow-btn" onclick="scrollSection('top-rated-anime', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="arrow-btn" onclick="scrollSection('top-rated-anime', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="movie-grid" id="top-rated-anime"></div>
+        </div>
+    </section>
+
+    <!-- Airing Today -->
+    <section class="content-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Airing Today</h2>
+                <div class="section-arrows">
+                    <button class="arrow-btn" onclick="scrollSection('airing-anime', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="arrow-btn" onclick="scrollSection('airing-anime', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="movie-grid" id="airing-anime"></div>
+        </div>
+    </section>
+
+    <!-- Action Anime -->
+    <section class="content-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Action Anime</h2>
+                <div class="section-arrows">
+                    <button class="arrow-btn" onclick="scrollSection('action-anime', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="arrow-btn" onclick="scrollSection('action-anime', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="movie-grid" id="action-anime"></div>
+        </div>
+    </section>
+
+    <script src="anime-script.js"></script>
+</body>
+</html>

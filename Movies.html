@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movies - SaintStream</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <div class="logo">
+                    <span class="logo-icon">SS</span>
+                    <span class="logo-text">SaintStream</span>
+                </div>
+            </div>
+            <div class="nav-center">
+                <a href="saintstream.html" class="nav-link">Home</a>
+                <a href="movies.html" class="nav-link active">Movies</a>
+                <a href="series.html" class="nav-link">Series</a>
+                <a href="anime.html" class="nav-link">Anime</a>
+            </div>
+            <div class="nav-right">
+                <i class="fas fa-search"></i>
+                <i class="fas fa-bell"></i>
+                <div class="profile-icon">
+                    <img src="https://via.placeholder.com/40" alt="Profile">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Movies</h1>
+            <p>Discover thousands of movies across all genres</p>
+        </div>
+    </section>
+
+    <!-- Genre Filter -->
+    <section class="genre-filter-section">
+        <div class="container">
+            <div class="genre-filter">
+                <button class="genre-btn active" data-genre="all">All Movies</button>
+                <button class="genre-btn" data-genre="28">Action</button>
+                <button class="genre-btn" data-genre="12">Adventure</button>
+                <button class="genre-btn" data-genre="16">Animation</button>
+                <button class="genre-btn" data-genre="35">Comedy</button>
+                <button class="genre-btn" data-genre="80">Crime</button>
+                <button class="genre-btn" data-genre="18">Drama</button>
+                <button class="genre-btn" data-genre="14">Fantasy</button>
+                <button class="genre-btn" data-genre="27">Horror</button>
+                <button class="genre-btn" data-genre="10749">Romance</button>
+                <button class="genre-btn" data-genre="878">Sci-Fi</button>
+                <button class="genre-btn" data-genre="53">Thriller</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Popular Movies -->
+    <section class="content-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Popular Movies</h2>
+                <div class="section-arrows">
+                    <button class="arrow-btn" onclick="scrollSection('popular-movies', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="arrow-btn" onclick="scrollSection('popular-movies', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="movie-grid" id="popular-movies"></div>
+        </div>
+    </section>
+
+    <!-- Now Playing -->
+    <section class="content-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Now Playing</h2>
+                <div class="section-arrows">
+                    <button class="arrow-btn" onclick="scrollSection('now-playing', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="arrow-btn" onclick="scrollSection('now-playing', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="movie-grid" id="now-playing"></div>
+        </div>
+    </section>
+
+    <!-- Top Rated -->
+    <section class="content-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Top Rated</h2>
+                <div class="section-arrows">
+                    <button class="arrow-btn" onclick="scrollSection('top-rated-movies', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="arrow-btn" onclick="scrollSection('top-rated-movies', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="movie-grid" id="top-rated-movies"></div>
+        </div>
+    </section>
+
+    <!-- Upcoming -->
+    <section class="content-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Upcoming Movies</h2>
+                <div class="section-arrows">
+                    <button class="arrow-btn" onclick="scrollSection('upcoming', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="arrow-btn" onclick="scrollSection('upcoming', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="movie-grid" id="upcoming"></div>
+        </div>
+    </section>
+
+    <!-- Genre Based Movies (Dynamic) -->
+    <section class="content-section" id="genre-section" style="display: none;">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title" id="genre-title">Genre Movies</h2>
+                <div class="section-arrows">
+                    <button class="arrow-btn" onclick="scrollSection('genre-movies', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="arrow-btn" onclick="scrollSection('genre-movies', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="movie-grid" id="genre-movies"></div>
+        </div>
+    </section>
+
+    <script src="movies-script.js"></script>
+</body>
+</html>

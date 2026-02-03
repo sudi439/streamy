@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaintStream - Watch Movies Around The World</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <div class="logo">
+                    <span class="logo-icon">SS</span>
+                    <span class="logo-text">SaintStream</span>
+                </div>
+            </div>
+            <div class="nav-center">
+                <a href="saintstream.html" class="nav-link active">Home</a>
+                <a href="movies.html" class="nav-link">Movies</a>
+                <a href="series.html" class="nav-link">Series</a>
+                <a href="anime.html" class="nav-link">Anime</a>
+            </div>
+            <div class="nav-right">
+                <i class="fas fa-search"></i>
+                <i class="fas fa-bell"></i>
+                <div class="profile-icon">
+                    <img src="https://via.placeholder.com/40" alt="Profile">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="season-badge">Season 3</div>
+            <h1 class="hero-title">The Mandalorian</h1>
+            <p class="hero-meta">Season 3 2023 · PG-rated · Action</p>
+            <p class="hero-description">
+                The third season of the American television series The Mandalorian stars Pedro Pascal as the title character, a bounty hunter traveling to Mandalore to redeem his past transgressions with his companion Grogu and being aided on their journey by fellow Mandalorian Bo-Katan Kryze.
+            </p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary">
+                    <i class="fas fa-play"></i> Play Now
+                </button>
+                <button class="btn btn-secondary">
+                    <i class="fas fa-clock"></i> Watch Trailer
+                </button>
+                <button class="btn btn-secondary">
+                    <i class="fas fa-plus"></i> Add Watchlist
+                </button>
+            </div>
+        </div>
+        <div class="hero-dots">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+    </section>
+
+    <!-- Streaming Services -->
+    <section class="streaming-services">
+        <div class="container">
+            <div class="service-logos" id="streaming-providers">
+                <!-- Will be populated by JavaScript with real provider logos -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Continue Watching -->
+    <section class="content-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Continue Watching</h2>
+                <div class="section-arrows">
+                    <button class="arrow-btn" onclick="scrollSection('continue-watching', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="arrow-btn" onclick="scrollSection('continue-watching', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="movie-grid" id="continue-watching">
+            </div>
+        </div>
+    </section>
+
+    <!-- Popular of the Week -->
+    <section class="content-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Popular of the week</h2>
+                <div class="section-arrows">
+                    <button class="arrow-btn" onclick="scrollSection('popular-week', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="arrow-btn" onclick="scrollSection('popular-week', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="popular-grid" id="popular-week">
+            </div>
+        </div>
+    </section>
+
+    <!-- Just Release -->
+    <section class="content-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Just Release</h2>
+                <div class="section-arrows">
+                    <button class="arrow-btn" onclick="scrollSection('just-release', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="arrow-btn" onclick="scrollSection('just-release', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="movie-grid" id="just-release">
+            </div>
+        </div>
+    </section>
+
+    <!-- Your Watchlist -->
+    <section class="content-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Your Watchlist</h2>
+                <div class="section-arrows">
+                    <button class="arrow-btn" onclick="scrollSection('watchlist', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="arrow-btn" onclick="scrollSection('watchlist', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="movie-grid" id="watchlist">
+            </div>
+        </div>
+    </section>
+
+    <!-- Upcoming Movies -->
+    <section class="content-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Upcoming Movies</h2>
+                <div class="section-arrows">
+                    <button class="arrow-btn" onclick="scrollSection('upcoming-movies', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="arrow-btn" onclick="scrollSection('upcoming-movies', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="movie-grid" id="upcoming-movies">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Top Rated TV Shows -->
+    <section class="content-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Top Rated TV Shows</h2>
+                <div class="section-arrows">
+                    <button class="arrow-btn" onclick="scrollSection('top-tv-shows', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="arrow-btn" onclick="scrollSection('top-tv-shows', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="movie-grid" id="top-tv-shows">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Action Movies -->
+    <section class="content-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Action & Adventure</h2>
+                <div class="section-arrows">
+                    <button class="arrow-btn" onclick="scrollSection('action-movies', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="arrow-btn" onclick="scrollSection('action-movies', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="movie-grid" id="action-movies">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Mobile Bottom Nav (hidden on desktop) -->
+    <nav class="mobile-nav">
+        <a href="#"><i class="fas fa-home"></i></a>
+        <a href="#"><i class="fas fa-compass"></i></a>
+        <a href="#"><i class="fas fa-plus-circle"></i></a>
+        <a href="#"><i class="fas fa-bookmark"></i></a>
+        <a href="#"><i class="fas fa-user"></i></a>
+    </nav>
+    
+    <script src="script.js"></script>
+</body>
+</html>
