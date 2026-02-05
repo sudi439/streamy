@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body class="series">
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
@@ -24,8 +24,8 @@
                 <a href="anime.html" class="nav-link">Anime</a>
             </div>
             <div class="nav-right">
-                <i class="fas fa-search"></i>
-                <i class="fas fa-bell"></i>
+                <i class="fas fa-search" onclick="openSearch()"></i>
+                <i class="fas fa-bell" onclick="showNotifications()"></i>
                 <div class="profile-icon">
                     <img src="https://via.placeholder.com/40" alt="Profile">
                 </div>
@@ -150,5 +150,29 @@
     </section>
 
     <script src="series-script.js"></script>
+    
+    <!-- Mobile Bottom Nav -->
+    <nav class="mobile-nav">
+        <a href="saintstream.html" class="mobile-nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="movies.html" class="mobile-nav-item">
+            <i class="fas fa-film"></i>
+            <span>Movies</span>
+        </a>
+        <a href="series.html" class="mobile-nav-item active">
+            <i class="fas fa-tv"></i>
+            <span>Series</span>
+        </a>
+        <a href="anime.html" class="mobile-nav-item">
+            <i class="fas fa-dragon"></i>
+            <span>Anime</span>
+        </a>
+        <a href="#" class="mobile-nav-item" onclick="openSearch(); return false;">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+        </a>
+    </nav>
 </body>
 </html>

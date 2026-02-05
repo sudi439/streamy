@@ -5,13 +5,13 @@ const IMG_BASE_URL = 'https://image.tmdb.org/t/p';
 
 // Pagination state
 const paginationState = {
-    'popular-anime': { page: 0, data: [] },
-    'top-rated-anime': { page: 0, data: [] },
-    'airing-anime': { page: 0, data: [] },
-    'action-anime': { page: 0, data: [] }
+    'popular-anime': { page: 1, data: [], totalPages: 1 },
+    'top-rated-anime': { page: 1, data: [], totalPages: 1 },
+    'airing-anime': { page: 1, data: [], totalPages: 1 },
+    'action-anime': { page: 1, data: [], totalPages: 1 }
 };
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 20; // Show 20 items in grid layout
 
 // Fetch anime (Animation genre TV shows with Japanese origin)
 async function fetchPopularAnime() {
@@ -85,18 +85,24 @@ function createAnimeCard(anime) {
     `;
 }
 
-// Scroll section function
+// Scroll section function - now for grid pagination
 function scrollSection(sectionId, direction) {
     const state = paginationState[sectionId];
     if (!state || !state.data.length) return;
     
     const newPage = state.page + direction;
-    const maxPage = Math.ceil(state.data.length / ITEMS_PER_PAGE) - 1;
+    const maxPage = Math.ceil(state.data.length / ITEMS_PER_PAGE);
     
-    if (newPage < 0 || newPage > maxPage) return;
+    if (newPage < 1 || newPage > maxPage) return;
     
     state.page = newPage;
     renderSection(sectionId);
+    
+    // Scroll to section
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 }
 
 // Render section
@@ -107,7 +113,7 @@ function renderSection(sectionId) {
     const container = document.getElementById(sectionId);
     if (!container) return;
     
-    const start = state.page * ITEMS_PER_PAGE;
+    const start = (state.page - 1) * ITEMS_PER_PAGE;
     const end = start + ITEMS_PER_PAGE;
     const items = state.data.slice(start, end);
     
@@ -119,7 +125,7 @@ async function loadPopularAnime() {
     const anime = await fetchPopularAnime();
     if (anime.length > 0) {
         paginationState['popular-anime'].data = anime;
-        paginationState['popular-anime'].page = 0;
+        paginationState['popular-anime'].page = 1;
         renderSection('popular-anime');
     }
 }
@@ -128,7 +134,7 @@ async function loadTopRatedAnime() {
     const anime = await fetchTopRatedAnime();
     if (anime.length > 0) {
         paginationState['top-rated-anime'].data = anime;
-        paginationState['top-rated-anime'].page = 0;
+        paginationState['top-rated-anime'].page = 1;
         renderSection('top-rated-anime');
     }
 }
@@ -137,7 +143,7 @@ async function loadAiringAnime() {
     const anime = await fetchAiringAnime();
     if (anime.length > 0) {
         paginationState['airing-anime'].data = anime;
-        paginationState['airing-anime'].page = 0;
+        paginationState['airing-anime'].page = 1;
         renderSection('airing-anime');
     }
 }
@@ -146,7 +152,7 @@ async function loadActionAnime() {
     const anime = await fetchActionAnime();
     if (anime.length > 0) {
         paginationState['action-anime'].data = anime;
-        paginationState['action-anime'].page = 0;
+        paginationState['action-anime'].page = 1;
         renderSection('action-anime');
     }
 }
@@ -160,3 +166,53 @@ async function initializePage() {
 }
 
 document.addEventListener('DOMContentLoaded', initializePage);
+
+// Search function for mobile nav
+function openSearch() {
+    const searchModal = document.createElement('div');
+    searchModal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 10000;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 20px;
+        padding-top: 80px;
+    `;
+    
+    searchModal.innerHTML = `
+        <div style="width: 100%; max-width: 600px;">
+            <div style="position: relative;">
+                <input 
+                    type="text" 
+                    id="search-input"
+                    placeholder="Search anime..." 
+                    style="width: 100%; padding: 18px 50px 18px 20px; background: #1a1d29; border: 2px solid rgba(0, 212, 170, 0.3); border-radius: 12px; font-size: 16px; color: #fff; outline: none;"
+                />
+                <i class="fas fa-search" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #00d4aa; font-size: 20px;"></i>
+            </div>
+            <button 
+                onclick="this.parentElement.parentElement.remove()" 
+                style="width: 100%; margin-top: 15px; padding: 15px; background: rgba(255, 0, 0, 0.2); border: 2px solid rgba(255, 0, 0, 0.3); border-radius: 12px; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer;">
+                <i class="fas fa-times"></i> Close
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(searchModal);
+    setTimeout(() => document.getElementById('search-input').focus(), 100);
+}
+
+// Helper functions
+function openSearch() {
+    alert('Search feature coming soon!');
+}
+
+function showNotifications() {
+    alert('No new notifications');
+}

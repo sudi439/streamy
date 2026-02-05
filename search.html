@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - SaintStream</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="search-page">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <div class="logo">
+                    <span class="logo-icon">SS</span>
+                    <span class="logo-text">SaintStream</span>
+                </div>
+            </div>
+            <div class="nav-center">
+                <a href="saintstream.html" class="nav-link">Home</a>
+                <a href="movies.html" class="nav-link">Movies</a>
+                <a href="series.html" class="nav-link">Series</a>
+                <a href="anime.html" class="nav-link">Anime</a>
+            </div>
+            <div class="nav-right">
+                <i class="fas fa-search" onclick="window.location.href='search.html'"></i>
+                <i class="fas fa-bell"></i>
+                <div class="profile-icon">
+                    <img src="https://via.placeholder.com/40" alt="Profile">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Search Header -->
+    <section class="search-header">
+        <div class="container">
+            <h1>Search</h1>
+            <div class="search-input-container">
+                <i class="fas fa-search"></i>
+                <input 
+                    type="text" 
+                    id="main-search-input" 
+                    placeholder="Type to search movies, series, anime..."
+                    autocomplete="off"
+                    autofocus
+                />
+                <i class="fas fa-times" id="clear-search" style="display: none;"></i>
+            </div>
+            <div class="search-filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="movie">Movies</button>
+                <button class="filter-btn" data-filter="tv">TV Shows</button>
+                <button class="filter-btn" data-filter="person">People</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Results -->
+    <section class="search-results-section">
+        <div class="container">
+            <div id="initial-message" class="initial-message">
+                <i class="fas fa-search"></i>
+                <h2>Start searching</h2>
+                <p>Type in the search box above to find movies, TV shows, and more</p>
+            </div>
+            
+            <div id="loading-indicator" class="loading-indicator" style="display: none;">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Searching...</p>
+            </div>
+            
+            <div id="results-container" class="results-grid" style="display: none;">
+                <!-- Results will be loaded here -->
+            </div>
+            
+            <div id="no-results" class="no-results" style="display: none;">
+                <i class="fas fa-search"></i>
+                <h2>No results found</h2>
+                <p>Try searching with different keywords</p>
+            </div>
+            
+            <!-- Pagination -->
+            <div id="pagination" class="pagination" style="display: none;">
+                <button class="page-btn" id="prev-page" onclick="loadPreviousPage()">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <span id="page-info">Page 1</span>
+                <button class="page-btn" id="next-page" onclick="loadNextPage()">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mobile Bottom Nav -->
+    <nav class="mobile-nav">
+        <a href="saintstream.html" class="mobile-nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="movies.html" class="mobile-nav-item">
+            <i class="fas fa-film"></i>
+            <span>Movies</span>
+        </a>
+        <a href="series.html" class="mobile-nav-item">
+            <i class="fas fa-tv"></i>
+            <span>Series</span>
+        </a>
+        <a href="anime.html" class="mobile-nav-item">
+            <i class="fas fa-dragon"></i>
+            <span>Anime</span>
+        </a>
+        <a href="#" class="mobile-nav-item active">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+        </a>
+    </nav>
+
+    <script src="search-script.js"></script>
+</body>
+</html>

@@ -3,20 +3,50 @@ const API_KEY = '947483b65dc5127f5e0a037175fb6593';
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMG_BASE_URL = 'https://image.tmdb.org/t/p';
 
-// Get movie ID from URL parameter
-function getMovieIdFromURL() {
+// Global variables
+let currentMediaType = 'movie';
+let currentSeasons = [];
+let currentSeason = 1;
+let currentEpisode = 1;
+
+// Get movie/series ID and type from URL parameter
+function getMediaInfoFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('id') || '438631'; // Default to Dune if no ID
+    return {
+        id: urlParams.get('id') || '438631',
+        type: urlParams.get('type') || 'movie'
+    };
+}
+
+// Get movie ID from URL parameter (legacy support)
+function getMovieIdFromURL() {
+    return getMediaInfoFromURL().id;
 }
 
 // Fetch movie details
 async function fetchMovieDetails(movieId) {
     try {
-        const response = await fetch(`${BASE_URL}/movie/${movieId}?api_key=${API_KEY}&language=en-US`);
+        const urlParams = new URLSearchParams(window.location.search);
+        const type = urlParams.get('type') || 'movie';
+        const endpoint = type === 'tv' ? 'tv' : 'movie';
+        
+        const response = await fetch(`${BASE_URL}/${endpoint}/${movieId}?api_key=${API_KEY}&language=en-US`);
         const data = await response.json();
         return data;
     } catch (error) {
-        console.error('Error fetching movie details:', error);
+        console.error('Error fetching details:', error);
+        return null;
+    }
+}
+
+// Fetch season details
+async function fetchSeasonDetails(tvId, seasonNumber) {
+    try {
+        const response = await fetch(`${BASE_URL}/tv/${tvId}/season/${seasonNumber}?api_key=${API_KEY}&language=en-US`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching season details:', error);
         return null;
     }
 }
@@ -24,11 +54,15 @@ async function fetchMovieDetails(movieId) {
 // Fetch movie videos (trailers)
 async function fetchMovieVideos(movieId) {
     try {
-        const response = await fetch(`${BASE_URL}/movie/${movieId}/videos?api_key=${API_KEY}&language=en-US`);
+        const urlParams = new URLSearchParams(window.location.search);
+        const type = urlParams.get('type') || 'movie';
+        const endpoint = type === 'tv' ? 'tv' : 'movie';
+        
+        const response = await fetch(`${BASE_URL}/${endpoint}/${movieId}/videos?api_key=${API_KEY}&language=en-US`);
         const data = await response.json();
         return data.results;
     } catch (error) {
-        console.error('Error fetching movie videos:', error);
+        console.error('Error fetching videos:', error);
         return [];
     }
 }
@@ -36,11 +70,15 @@ async function fetchMovieVideos(movieId) {
 // Fetch movie cast
 async function fetchMovieCast(movieId) {
     try {
-        const response = await fetch(`${BASE_URL}/movie/${movieId}/credits?api_key=${API_KEY}`);
+        const urlParams = new URLSearchParams(window.location.search);
+        const type = urlParams.get('type') || 'movie';
+        const endpoint = type === 'tv' ? 'tv' : 'movie';
+        
+        const response = await fetch(`${BASE_URL}/${endpoint}/${movieId}/credits?api_key=${API_KEY}`);
         const data = await response.json();
         return data.cast;
     } catch (error) {
-        console.error('Error fetching movie cast:', error);
+        console.error('Error fetching cast:', error);
         return [];
     }
 }
@@ -48,11 +86,15 @@ async function fetchMovieCast(movieId) {
 // Fetch similar movies
 async function fetchSimilarMovies(movieId) {
     try {
-        const response = await fetch(`${BASE_URL}/movie/${movieId}/similar?api_key=${API_KEY}&language=en-US&page=1`);
+        const urlParams = new URLSearchParams(window.location.search);
+        const type = urlParams.get('type') || 'movie';
+        const endpoint = type === 'tv' ? 'tv' : 'movie';
+        
+        const response = await fetch(`${BASE_URL}/${endpoint}/${movieId}/similar?api_key=${API_KEY}&language=en-US&page=1`);
         const data = await response.json();
         return data.results;
     } catch (error) {
-        console.error('Error fetching similar movies:', error);
+        console.error('Error fetching similar:', error);
         return [];
     }
 }
@@ -66,7 +108,10 @@ function formatRuntime(minutes) {
 
 // Load movie details
 async function loadMovieDetails() {
-    const movieId = getMovieIdFromURL();
+    const mediaInfo = getMediaInfoFromURL();
+    const movieId = mediaInfo.id;
+    currentMediaType = mediaInfo.type;
+    
     const movie = await fetchMovieDetails(movieId);
     
     if (movie) {
@@ -77,19 +122,85 @@ async function loadMovieDetails() {
         document.getElementById('movie-poster').src = posterUrl;
         
         // Update title
-        document.getElementById('movie-title').textContent = movie.title;
+        const title = movie.title || movie.name;
+        document.getElementById('movie-title').textContent = title;
         
         // Update meta info
-        document.getElementById('rating').textContent = movie.vote_average.toFixed(1);
-        document.getElementById('year').textContent = movie.release_date?.split('-')[0] || 'N/A';
-        document.getElementById('duration').textContent = formatRuntime(movie.runtime);
+        document.getElementById('rating').textContent = (movie.vote_average || 0).toFixed(1);
+        document.getElementById('year').textContent = (movie.release_date || movie.first_air_date || '').split('-')[0] || 'N/A';
+        
+        if (movie.runtime) {
+            document.getElementById('duration').textContent = formatRuntime(movie.runtime);
+        } else if (movie.episode_run_time && movie.episode_run_time.length > 0) {
+            document.getElementById('duration').textContent = formatRuntime(movie.episode_run_time[0]);
+        } else {
+            document.getElementById('duration').textContent = 'N/A';
+        }
+        
         document.getElementById('genre').textContent = movie.genres?.map(g => g.name).join(', ') || 'N/A';
         
         // Update description
         document.getElementById('movie-description').textContent = movie.overview;
         
         // Update page title
-        document.title = `${movie.title} - SaintStream`;
+        document.title = `${title} - SaintStream`;
+        
+        // Handle TV show seasons/episodes
+        if (currentMediaType === 'tv' && movie.seasons) {
+            currentSeasons = movie.seasons;
+            setupEpisodeSelector();
+        }
+    }
+}
+
+// Setup episode selector for TV shows
+async function setupEpisodeSelector() {
+    const episodeSelector = document.getElementById('episode-selector');
+    const seasonSelect = document.getElementById('season-select');
+    const episodeSelect = document.getElementById('episode-select');
+    
+    if (currentSeasons && currentSeasons.length > 0) {
+        episodeSelector.style.display = 'flex';
+        
+        // Populate seasons (skip season 0 which is usually specials)
+        const validSeasons = currentSeasons.filter(s => s.season_number > 0);
+        seasonSelect.innerHTML = validSeasons.map(season => 
+            `<option value="${season.season_number}">Season ${season.season_number}</option>`
+        ).join('');
+        
+        // Load episodes for first season
+        await loadEpisodes();
+    }
+}
+
+// Load episodes for selected season
+async function loadEpisodes() {
+    const mediaInfo = getMediaInfoFromURL();
+    const seasonSelect = document.getElementById('season-select');
+    const episodeSelect = document.getElementById('episode-select');
+    
+    currentSeason = parseInt(seasonSelect.value);
+    
+    const seasonData = await fetchSeasonDetails(mediaInfo.id, currentSeason);
+    
+    if (seasonData && seasonData.episodes) {
+        episodeSelect.innerHTML = seasonData.episodes.map(episode => 
+            `<option value="${episode.episode_number}">Episode ${episode.episode_number} - ${episode.name}</option>`
+        ).join('');
+        
+        currentEpisode = 1;
+    }
+}
+
+// Change episode
+function changeEpisode() {
+    const episodeSelect = document.getElementById('episode-select');
+    currentEpisode = parseInt(episodeSelect.value);
+    
+    // If player is loaded, reload with new episode
+    const player = document.getElementById('video-player');
+    if (player.querySelector('iframe')) {
+        playMovie();
     }
 }
 
@@ -132,7 +243,7 @@ async function loadCast() {
                 <div class="cast-card">
                     <img src="${profileUrl}" alt="${member.name}">
                     <h3>${member.name}</h3>
-                    <p>${member.character}</p>
+                    <p>${member.character || 'Actor'}</p>
                 </div>
             `;
         }).join('');
@@ -145,27 +256,31 @@ async function loadCast() {
 async function loadSimilarMovies() {
     const movieId = getMovieIdFromURL();
     const similar = await fetchSimilarMovies(movieId);
+    const urlParams = new URLSearchParams(window.location.search);
+    const type = urlParams.get('type') || 'movie';
     
     const similarGrid = document.getElementById('similar-grid');
     
     if (similar.length > 0) {
-        similarGrid.innerHTML = similar.slice(0, 10).map(movie => {
-            const posterUrl = movie.poster_path 
-                ? `${IMG_BASE_URL}/w500${movie.poster_path}` 
+        similarGrid.innerHTML = similar.slice(0, 10).map(item => {
+            const posterUrl = item.poster_path 
+                ? `${IMG_BASE_URL}/w500${item.poster_path}` 
                 : 'https://via.placeholder.com/200x300/4a5568/ffffff?text=No+Image';
             
-            const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
+            const title = item.title || item.name;
+            const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
+            const typeParam = type === 'tv' ? '&type=tv' : '';
             
             return `
-                <div class="similar-card" onclick="window.location.href='player.html?id=${movie.id}'">
-                    <img src="${posterUrl}" alt="${movie.title}">
-                    <h3>${movie.title}</h3>
+                <div class="similar-card" onclick="window.location.href='player.html?id=${item.id}${typeParam}'">
+                    <img src="${posterUrl}" alt="${title}">
+                    <h3>${title}</h3>
                     <p>⭐ ${rating}</p>
                 </div>
             `;
         }).join('');
     } else {
-        similarGrid.innerHTML = '<p style="color: #8b92a7;">No similar movies found.</p>';
+        similarGrid.innerHTML = '<p style="color: #8b92a7;">No similar content found.</p>';
     }
 }
 
@@ -189,33 +304,60 @@ function loadPlayerSource(movieId, source) {
         <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000;">
             <div style="text-align: center;">
                 <i class="fas fa-spinner fa-spin" style="font-size: 60px; color: #00d4aa; margin-bottom: 20px;"></i>
-                <p style="font-size: 18px; color: #fff;">Loading movie...</p>
+                <p style="font-size: 18px; color: #fff;">Loading...</p>
+                <p style="font-size: 14px; color: #8b92a7; margin-top: 10px;">Server: ${source}</p>
             </div>
         </div>
     `;
+    
+    // Check if it's a TV show
+    const mediaInfo = getMediaInfoFromURL();
+    const type = mediaInfo.type;
+    
+    // Get current season and episode for TV shows
+    let season = currentSeason || 1;
+    let episode = currentEpisode || 1;
+    
+    if (type === 'tv') {
+        const seasonSelect = document.getElementById('season-select');
+        const episodeSelect = document.getElementById('episode-select');
+        if (seasonSelect && seasonSelect.value) season = parseInt(seasonSelect.value);
+        if (episodeSelect && episodeSelect.value) episode = parseInt(episodeSelect.value);
+    }
     
     // Determine embed URL based on source
     let embedUrl = '';
     
     switch(source) {
-        case '2embed':
-            embedUrl = `https://www.2embed.cc/embed/${movieId}`;
-            break;
         case 'vidsrc':
-            embedUrl = `https://vidsrc.to/embed/movie/${movieId}`;
+            embedUrl = type === 'tv'
+                ? `https://vidsrc.to/embed/tv/${movieId}/${season}/${episode}`
+                : `https://vidsrc.to/embed/movie/${movieId}`;
             break;
-        case 'embedsoap':
-            embedUrl = `https://www.embedsoap.com/embed/movie/${movieId}`;
+        case 'vidsrc2':
+            embedUrl = type === 'tv'
+                ? `https://vidsrc.me/embed/tv/${movieId}/${season}/${episode}`
+                : `https://vidsrc.me/embed/movie/${movieId}`;
             break;
-        case 'autoembed':
-            embedUrl = `https://player.autoembed.cc/embed/movie/${movieId}`;
+        case '2embed':
+            embedUrl = type === 'tv' 
+                ? `https://www.2embed.cc/embedtv/${movieId}?s=${season}&e=${episode}`
+                : `https://www.2embed.cc/embed/${movieId}`;
+            break;
+        case 'moviesapi':
+            embedUrl = type === 'tv'
+                ? `https://moviesapi.club/tv/${movieId}-${season}-${episode}`
+                : `https://moviesapi.club/movie/${movieId}`;
             break;
         default:
-            embedUrl = `https://www.2embed.cc/embed/${movieId}`;
+            embedUrl = type === 'tv'
+                ? `https://vidsrc.to/embed/tv/${movieId}/${season}/${episode}`
+                : `https://vidsrc.to/embed/movie/${movieId}`;
     }
     
-    // Load the iframe after a short delay to show loading state
+    // Load the iframe
     setTimeout(() => {
+        console.log('Loading video from:', embedUrl);
         player.innerHTML = `
             <iframe 
                 src="${embedUrl}" 
@@ -223,11 +365,30 @@ function loadPlayerSource(movieId, source) {
                 height="100%" 
                 frameborder="0" 
                 allowfullscreen
-                allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+                allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
                 scrolling="no"
-                style="border: none;">
+                referrerpolicy="origin"
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;">
             </iframe>
         `;
+        
+        // Add error detection
+        const iframe = player.querySelector('iframe');
+        if (iframe) {
+            iframe.onerror = function() {
+                console.error('Failed to load iframe from:', embedUrl);
+                player.innerHTML = `
+                    <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; padding: 20px;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 60px; color: #ff6b6b; margin-bottom: 20px;"></i>
+                        <p style="font-size: 18px; color: #fff; margin-bottom: 10px;">Failed to load video</p>
+                        <p style="font-size: 14px; color: #8b92a7; text-align: center; margin-bottom: 20px;">Try switching to a different server or refresh the page</p>
+                        <button onclick="reloadPlayer()" style="background: linear-gradient(135deg, #00d4aa, #00a885); color: #0d0d0d; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-sync-alt"></i> Try Again
+                        </button>
+                    </div>
+                `;
+            };
+        }
     }, 500);
 }
 
@@ -257,8 +418,43 @@ function playTrailer() {
 
 function downloadMovie() {
     const movieId = getMovieIdFromURL();
-    const downloadUrl = `https://dl.vidsrc.me/movie/${movieId}`;
-    window.open(downloadUrl, '_blank');
+    const movieTitle = document.getElementById('movie-title').textContent;
+    
+    // Create download modal
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 20px;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: #1a1a1a; padding: 30px; border-radius: 12px; max-width: 500px; width: 100%;">
+            <h2 style="color: #fff; margin-bottom: 20px; font-size: 24px;">Download Options</h2>
+            <p style="color: #8b92a7; margin-bottom: 25px;">Choose download quality for: ${movieTitle}</p>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <a href="https://dl.vidsrc.me/movie/${movieId}" target="_blank" style="background: linear-gradient(135deg, #00d4aa, #00a885); color: #0d0d0d; padding: 15px; border-radius: 8px; text-decoration: none; text-align: center; font-weight: 600;">
+                    <i class="fas fa-download"></i> Download HD (VidSrc)
+                </a>
+                <a href="https://www.2embed.cc/embed/${movieId}" target="_blank" style="background: rgba(255, 255, 255, 0.1); color: #fff; padding: 15px; border-radius: 8px; text-decoration: none; text-align: center; font-weight: 600; border: 1px solid rgba(255, 255, 255, 0.2);">
+                    <i class="fas fa-download"></i> Alternative Source
+                </a>
+                <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background: rgba(255, 0, 0, 0.2); color: #fff; padding: 15px; border: 1px solid rgba(255, 0, 0, 0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
 }
 
 function addToWatchlist() {
@@ -268,17 +464,92 @@ function addToWatchlist() {
     let watchlist = JSON.parse(localStorage.getItem('watchlist') || '[]');
     const movieId = getMovieIdFromURL();
     
-    if (!watchlist.includes(movieId)) {
-        watchlist.push(movieId);
+    const movieData = {
+        id: movieId,
+        title: movieTitle,
+        poster: document.getElementById('movie-poster').src,
+        addedAt: new Date().toISOString()
+    };
+    
+    // Check if already in watchlist
+    const exists = watchlist.find(item => item.id === movieId);
+    
+    if (!exists) {
+        watchlist.push(movieData);
         localStorage.setItem('watchlist', JSON.stringify(watchlist));
-        alert(`${movieTitle} added to your watchlist!`);
+        showNotification(`✓ ${movieTitle} added to watchlist!`, 'success');
     } else {
-        alert(`${movieTitle} is already in your watchlist.`);
+        showNotification(`${movieTitle} is already in your watchlist.`, 'info');
     }
 }
 
 function addToList() {
-    alert('Add to custom list feature. This would open a modal to select or create a list.');
+    const movieTitle = document.getElementById('movie-title').textContent;
+    
+    // Create custom list modal
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 20px;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: #1a1a1a; padding: 30px; border-radius: 12px; max-width: 400px; width: 100%;">
+            <h2 style="color: #fff; margin-bottom: 20px; font-size: 24px;">Add to List</h2>
+            <p style="color: #8b92a7; margin-bottom: 20px;">${movieTitle}</p>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <button onclick="addToCustomList('favorites'); this.parentElement.parentElement.parentElement.remove();" style="background: rgba(255, 215, 0, 0.2); color: #ffd700; padding: 15px; border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    <i class="fas fa-star"></i> Favorites
+                </button>
+                <button onclick="addToCustomList('watch-later'); this.parentElement.parentElement.parentElement.remove();" style="background: rgba(0, 212, 170, 0.2); color: #00d4aa; padding: 15px; border: 1px solid rgba(0, 212, 170, 0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    <i class="fas fa-clock"></i> Watch Later
+                </button>
+                <button onclick="addToCustomList('completed'); this.parentElement.parentElement.parentElement.remove();" style="background: rgba(0, 150, 255, 0.2); color: #0096ff; padding: 15px; border: 1px solid rgba(0, 150, 255, 0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    <i class="fas fa-check"></i> Completed
+                </button>
+                <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background: rgba(255, 0, 0, 0.2); color: #fff; padding: 15px; border: 1px solid rgba(255, 0, 0, 0.3); border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+function addToCustomList(listName) {
+    const movieTitle = document.getElementById('movie-title').textContent;
+    const movieId = getMovieIdFromURL();
+    
+    let customLists = JSON.parse(localStorage.getItem('customLists') || '{}');
+    if (!customLists[listName]) {
+        customLists[listName] = [];
+    }
+    
+    const movieData = {
+        id: movieId,
+        title: movieTitle,
+        poster: document.getElementById('movie-poster').src,
+        addedAt: new Date().toISOString()
+    };
+    
+    const exists = customLists[listName].find(item => item.id === movieId);
+    if (!exists) {
+        customLists[listName].push(movieData);
+        localStorage.setItem('customLists', JSON.stringify(customLists));
+        showNotification(`✓ Added to ${listName.replace('-', ' ')}!`, 'success');
+    } else {
+        showNotification(`Already in ${listName.replace('-', ' ')}.`, 'info');
+    }
 }
 
 function shareMovie() {
@@ -290,13 +561,83 @@ function shareMovie() {
             title: movieTitle,
             text: `Check out ${movieTitle} on SaintStream!`,
             url: url
+        }).catch(() => {
+            copyToClipboard(url);
         });
     } else {
-        // Fallback - copy to clipboard
-        navigator.clipboard.writeText(url);
-        alert('Link copied to clipboard!');
+        copyToClipboard(url);
     }
 }
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showNotification('✓ Link copied to clipboard!', 'success');
+    }).catch(() => {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showNotification('✓ Link copied to clipboard!', 'success');
+    });
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    const bgColor = type === 'success' ? 'rgba(0, 212, 170, 0.95)' : 'rgba(0, 150, 255, 0.95)';
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: ${bgColor};
+        color: #fff;
+        padding: 15px 25px;
+        border-radius: 8px;
+        font-weight: 600;
+        z-index: 10001;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        animation: slideInRight 0.3s ease-out;
+    `;
+    
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Add CSS animations
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
 
 // Initialize page
 async function initializePage() {
@@ -305,9 +646,9 @@ async function initializePage() {
     await loadCast();
     await loadSimilarMovies();
     
-    // Check if autoplay parameter is set
+    // Auto-play if parameter is set
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('autoplay') === 'true') {
+    if (urlParams.get('autoplay') === 'true' || urlParams.get('play') === 'true') {
         setTimeout(() => {
             playMovie();
         }, 1000);

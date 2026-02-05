@@ -18,6 +18,7 @@ const paginationState = {
 let heroMovies = [];
 let currentHeroIndex = 0;
 let heroRotationInterval = null;
+let currentHeroMovieId = null;
 
 const ITEMS_PER_PAGE = 5;
 const HERO_ROTATION_TIME = 5000; // 5 seconds
@@ -217,6 +218,7 @@ function displayHeroMovie(index) {
     
     currentHeroIndex = index;
     const featured = heroMovies[index];
+    currentHeroMovieId = featured.id; // Store current movie ID
     
     const hero = document.querySelector('.hero');
     const heroContent = document.querySelector('.hero-content');
@@ -420,12 +422,54 @@ async function initializePage() {
     // Add click handlers to hero dots
     setupHeroDotHandlers();
     
+    // Setup hero button handlers
+    setupHeroButtons();
+    
     // Pause hero rotation on button hover
     const heroButtons = document.querySelectorAll('.hero-buttons .btn');
     heroButtons.forEach(btn => {
         btn.addEventListener('mouseenter', stopHeroRotation);
         btn.addEventListener('mouseleave', startHeroRotation);
     });
+}
+
+// Setup hero buttons
+function setupHeroButtons() {
+    const playBtn = document.getElementById('hero-play-btn');
+    const trailerBtn = document.getElementById('hero-trailer-btn');
+    const watchlistBtn = document.getElementById('hero-watchlist-btn');
+    
+    if (playBtn) {
+        playBtn.addEventListener('click', () => {
+            if (currentHeroMovieId) {
+                window.location.href = `player.html?id=${currentHeroMovieId}&autoplay=true`;
+            }
+        });
+    }
+    
+    if (trailerBtn) {
+        trailerBtn.addEventListener('click', () => {
+            if (currentHeroMovieId) {
+                window.location.href = `player.html?id=${currentHeroMovieId}#trailer`;
+            }
+        });
+    }
+    
+    if (watchlistBtn) {
+        watchlistBtn.addEventListener('click', () => {
+            if (currentHeroMovieId) {
+                let watchlist = JSON.parse(localStorage.getItem('watchlist') || '[]');
+                if (!watchlist.includes(currentHeroMovieId)) {
+                    watchlist.push(currentHeroMovieId);
+                    localStorage.setItem('watchlist', JSON.stringify(watchlist));
+                    alert('Added to your watchlist!');
+                    watchlistBtn.innerHTML = '<i class="fas fa-check"></i> Added';
+                } else {
+                    alert('Already in your watchlist.');
+                }
+            }
+        });
+    }
 }
 
 // Setup hero dot click handlers
@@ -444,3 +488,37 @@ function setupHeroDotHandlers() {
 
 // Run when page loads
 document.addEventListener('DOMContentLoaded', initializePage);
+
+// Go to search page
+function goToSearch() {
+    window.location.href = 'search.html';
+}
+
+// Notification and profile functions
+function showNotifications() {
+    alert('Notifications feature coming soon!');
+}
+
+function showProfile() {
+    alert('Profile page coming soon!');
+}
+
+// Search function for mobile nav
+function openSearch() {
+    window.location.href = 'search.html';
+}
+
+// Search functionality
+function openSearch() {
+    alert('Search feature coming soon! You can browse Movies, Series, and Anime pages to find content.');
+}
+
+// Notifications
+function showNotifications() {
+    alert('No new notifications');
+}
+
+// Profile
+function showProfile() {
+    alert('Profile page coming soon!');
+}

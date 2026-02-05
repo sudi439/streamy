@@ -19,14 +19,13 @@
             </div>
             <div class="nav-center">
                 <a href="saintstream.html" class="nav-link">Home</a>
-                <a href="#" class="nav-link">Discover</a>
-                <a href="#" class="nav-link">Movie Release</a>
-                <a href="#" class="nav-link">Forum</a>
-                <a href="#" class="nav-link">About</a>
+                <a href="movies.html" class="nav-link">Movies</a>
+                <a href="series.html" class="nav-link">Series</a>
+                <a href="anime.html" class="nav-link">Anime</a>
             </div>
             <div class="nav-right">
-                <i class="fas fa-search"></i>
-                <i class="fas fa-bell"></i>
+                <i class="fas fa-search" onclick="openSearch()"></i>
+                <i class="fas fa-bell" onclick="showNotifications()"></i>
                 <div class="profile-icon">
                     <img src="https://via.placeholder.com/40" alt="Profile">
                 </div>
@@ -39,28 +38,61 @@
         <div class="player-container">
             <!-- Source Selector -->
             <div class="source-selector">
-                <div class="source-label">Server:</div>
-                <select id="source-select" onchange="changeSource()">
-                    <option value="2embed">Server 1 - 2Embed (Fast)</option>
-                    <option value="vidsrc">Server 2 - VidSrc (HD)</option>
-                    <option value="embedsoap">Server 3 - EmbedSoap</option>
-                    <option value="autoembed">Server 4 - AutoEmbed</option>
-                </select>
+                <div class="selector-group">
+                    <div class="selector-label">
+                        <i class="fas fa-server"></i>
+                        Server
+                    </div>
+                    <select id="source-select" onchange="changeSource()">
+                        <option value="vidsrc">🚀 Server 1 - VidSrc (Recommended)</option>
+                        <option value="vidsrc2">⚡ Server 2 - VidSrc Pro</option>
+                        <option value="2embed">🎬 Server 3 - 2Embed</option>
+                        <option value="moviesapi">🔄 Server 4 - MoviesAPI</option>
+                    </select>
+                </div>
+                
+                <!-- Season/Episode Selector (for TV Shows) -->
+                <div id="episode-selector" style="display: none;">
+                    <div class="selector-group">
+                        <div class="selector-label">
+                            <i class="fas fa-list-ol"></i>
+                            Season
+                        </div>
+                        <select id="season-select" onchange="loadEpisodes()">
+                            <!-- Seasons populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="selector-group">
+                        <div class="selector-label">
+                            <i class="fas fa-play-circle"></i>
+                            Episode
+                        </div>
+                        <select id="episode-select" onchange="changeEpisode()">
+                            <!-- Episodes populated dynamically -->
+                             
+                        </select>
+
+                    </div>
+                </div>
+                
                 <button class="refresh-btn" onclick="reloadPlayer()">
-                    <i class="fas fa-sync-alt"></i> Reload
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Reload</span>
                 </button>
+                
                 <div class="player-info">
                     <i class="fas fa-info-circle"></i>
-                    <span>If video doesn't load, try switching servers</span>
+                    <span>Switch servers if video doesn't load</span>
                 </div>
             </div>
             
             <div class="video-player" id="video-player">
                 <!-- Video player will be loaded here -->
                 <div class="player-placeholder">
-                    <i class="fas fa-play-circle"></i>
-                    <p>Click "Watch Now" to start streaming</p>
+                    <i class="fas fa-play-circle" style="cursor: pointer;" onclick="playMovie()"></i>
+                    <p>Click the play button or "Watch Now" below to start streaming</p>
                     <p class="player-note">Multiple streaming sources available</p>
+                    
                 </div>
             </div>
         </div>
@@ -84,20 +116,17 @@
                     
                     <!-- Action Buttons -->
                     <div class="action-buttons">
-                        <button class="action-btn primary" onclick="playMovie()">
+                        <button class="action-btn primary" onclick="playMovie()" id="play-btn">
                             <i class="fas fa-play"></i> Watch Now
                         </button>
                         <button class="action-btn secondary" onclick="playTrailer()">
                             <i class="fas fa-film"></i> Watch Trailer
                         </button>
-                        <button class="action-btn secondary" onclick="downloadMovie()">
+                        <button class="action-btn secondary" onclick="downloadMovie()" id="download-btn">
                             <i class="fas fa-download"></i> Download
                         </button>
-                        <button class="action-btn secondary" onclick="addToWatchlist()">
+                        <button class="action-btn secondary" onclick="addToWatchlist()" id="watchlist-btn">
                             <i class="fas fa-bookmark"></i> Save
-                        </button>
-                        <button class="action-btn secondary" onclick="addToList()">
-                            <i class="fas fa-plus"></i> Add to List
                         </button>
                         <button class="action-btn secondary" onclick="shareMovie()">
                             <i class="fas fa-share-alt"></i> Share

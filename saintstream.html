@@ -24,10 +24,10 @@
                 <a href="anime.html" class="nav-link">Anime</a>
             </div>
             <div class="nav-right">
-                <i class="fas fa-search"></i>
-                <i class="fas fa-bell"></i>
+                <i class="fas fa-search" onclick="goToSearch()"></i>
+                <i class="fas fa-bell" onclick="showNotifications()"></i>
                 <div class="profile-icon">
-                    <img src="https://via.placeholder.com/40" alt="Profile">
+                    <img src="https://via.placeholder.com/40" alt="Profile" onclick="showProfile()">
                 </div>
             </div>
         </div>
@@ -43,13 +43,13 @@
                 The third season of the American television series The Mandalorian stars Pedro Pascal as the title character, a bounty hunter traveling to Mandalore to redeem his past transgressions with his companion Grogu and being aided on their journey by fellow Mandalorian Bo-Katan Kryze.
             </p>
             <div class="hero-buttons">
-                <button class="btn btn-primary">
+                <button class="btn btn-primary" id="hero-play-btn">
                     <i class="fas fa-play"></i> Play Now
                 </button>
-                <button class="btn btn-secondary">
+                <button class="btn btn-secondary" id="hero-trailer-btn">
                     <i class="fas fa-clock"></i> Watch Trailer
                 </button>
-                <button class="btn btn-secondary">
+                <button class="btn btn-secondary" id="hero-watchlist-btn">
                     <i class="fas fa-plus"></i> Add Watchlist
                 </button>
             </div>
@@ -210,11 +210,26 @@
 
     <!-- Mobile Bottom Nav (hidden on desktop) -->
     <nav class="mobile-nav">
-        <a href="#"><i class="fas fa-home"></i></a>
-        <a href="#"><i class="fas fa-compass"></i></a>
-        <a href="#"><i class="fas fa-plus-circle"></i></a>
-        <a href="#"><i class="fas fa-bookmark"></i></a>
-        <a href="#"><i class="fas fa-user"></i></a>
+        <a href="saintstream.html" class="mobile-nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="movies.html" class="mobile-nav-item">
+            <i class="fas fa-film"></i>
+            <span>Movies</span>
+        </a>
+        <a href="series.html" class="mobile-nav-item">
+            <i class="fas fa-tv"></i>
+            <span>Series</span>
+        </a>
+        <a href="anime.html" class="mobile-nav-item">
+            <i class="fas fa-dragon"></i>
+            <span>Anime</span>
+        </a>
+        <a href="#" class="mobile-nav-item" onclick="openSearch(); return false;">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+        </a>
     </nav>
     
     <script src="script.js"></script>
