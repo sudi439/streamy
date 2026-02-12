@@ -355,7 +355,7 @@ function loadPlayerSource(movieId, source) {
                 : `https://vidsrc.to/embed/movie/${movieId}`;
     }
     
-    // Load the iframe with ad blocking
+    // Load the iframe — no sandbox (breaks HLS/streams), ad blocking via Worker
     setTimeout(() => {
         console.log('Loading video from:', embedUrl);
         player.innerHTML = `
@@ -367,17 +367,14 @@ function loadPlayerSource(movieId, source) {
                 frameborder="0" 
                 allowfullscreen
                 allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
-                scrolling="no"
-                referrerpolicy="no-referrer"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
                 style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: 1;">
             </iframe>
         `;
-        
-        // Activate all ad blocking systems
+
+        // Client-side ad blocking runs regardless of Worker
         blockPopupAds();
         blockAdOverlays();
-        
+
     }, 500);
 }
 
