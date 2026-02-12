@@ -355,11 +355,12 @@ function loadPlayerSource(movieId, source) {
                 : `https://vidsrc.to/embed/movie/${movieId}`;
     }
     
-    // Load the iframe
+    // Load the iframe with ad blocking
     setTimeout(() => {
         console.log('Loading video from:', embedUrl);
         player.innerHTML = `
             <iframe 
+                id="player-iframe"
                 src="${embedUrl}" 
                 width="100%" 
                 height="100%" 
@@ -367,30 +368,197 @@ function loadPlayerSource(movieId, source) {
                 allowfullscreen
                 allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope"
                 scrolling="no"
-                referrerpolicy="origin"
-                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;">
+                referrerpolicy="no-referrer"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: 1;">
             </iframe>
         `;
         
-        // Add error detection
-        const iframe = player.querySelector('iframe');
-        if (iframe) {
-            iframe.onerror = function() {
-                console.error('Failed to load iframe from:', embedUrl);
-                player.innerHTML = `
-                    <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; padding: 20px;">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 60px; color: #ff6b6b; margin-bottom: 20px;"></i>
-                        <p style="font-size: 18px; color: #fff; margin-bottom: 10px;">Failed to load video</p>
-                        <p style="font-size: 14px; color: #8b92a7; text-align: center; margin-bottom: 20px;">Try switching to a different server or refresh the page</p>
-                        <button onclick="reloadPlayer()" style="background: linear-gradient(135deg, #00d4aa, #00a885); color: #0d0d0d; padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                            <i class="fas fa-sync-alt"></i> Try Again
-                        </button>
-                    </div>
-                `;
-            };
-        }
+        // Activate all ad blocking systems
+        blockPopupAds();
+        blockAdOverlays();
+        
     }, 500);
 }
+
+// ============================================================
+//  AD BLOCKING SYSTEM
+// ============================================================
+
+// Block window.open popups & new-tab ads
+function blockPopupAds() {
+    // Kill window.open — almost always ads from embed players
+    window.open = function(url) {
+        console.warn('🚫 Popup blocked:', url);
+        return null;
+    };
+
+    // Kill any <a target="_blank"> clicks that originate from ad injections
+    document.addEventListener('click', function(e) {
+        const a = e.target.closest('a');
+        if (!a) return;
+        const href  = (a.href  || '').toLowerCase();
+        const target = (a.target || '').toLowerCase();
+        const adDomains = [
+            'doubleclick', 'googlesyndication', 'adnxs', 'adtech',
+            'popads', 'popcash', 'exoclick', 'trafficjunky', 'juicyads',
+            'adsterra', 'hilltopads', 'adskeeper', 'propellerads',
+            'clkrev', 'clickadu', 'clickaine', 'adcash', 'yllix'
+        ];
+        if (adDomains.some(d => href.includes(d))) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            console.warn('🚫 Ad link blocked:', href);
+            return;
+        }
+        // Block any blank-target link NOT inside our player
+        if (target === '_blank' && !a.closest('#video-player')) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            console.warn('🚫 New-tab ad blocked:', href);
+        }
+    }, true);
+
+    // Refocus window if an ad stole focus (popup tab opened)
+    window.addEventListener('blur', () => {
+        setTimeout(() => window.focus(), 200);
+    });
+}
+
+// Continuously remove injected ad elements
+function blockAdOverlays() {
+    const adSelectors = [
+        'ins.adsbygoogle',
+        '[id*="google_ads"]',
+        '[id*="div-gpt-ad"]',
+        '[class*="popunder"]',
+        '[class*="pop-up"]',
+        '[id*="popunder"]',
+        '[data-adsbygoogle-status]',
+        'iframe[src*="doubleclick.net"]',
+        'iframe[src*="googlesyndication"]',
+        'iframe[src*="adnxs.com"]',
+        'iframe[src*="adtech.de"]',
+        'iframe[src*="popads"]',
+        'iframe[src*="popcash"]',
+        'iframe[src*="exoclick"]',
+        'iframe[src*="trafficjunky"]',
+        'iframe[src*="adsterra"]',
+        'iframe[src*="propellerads"]'
+    ];
+
+    const knownAdDomains = [
+        'doubleclick', 'googlesyndication', 'adnxs', 'adtech',
+        'popads', 'popcash', 'exoclick', 'trafficjunky', 'juicyads',
+        'adsterra', 'hilltopads', 'adskeeper', 'propellerads',
+        'clkrev', 'clickadu', 'yllix', 'adcash', 'clickaine',
+        'adblade', 'revcontent', 'taboola', 'outbrain'
+    ];
+
+    const allowedEmbeds = ['vidsrc', '2embed', 'moviesapi', 'embedsoap', 'autoembed'];
+
+    function cleanAds() {
+        // Remove known ad selectors
+        adSelectors.forEach(sel => {
+            document.querySelectorAll(sel).forEach(el => {
+                if (!el.closest('#video-player')) {
+                    el.remove();
+                }
+            });
+        });
+
+        // Kill any injected <iframe> outside the player that looks like an ad
+        document.querySelectorAll('body > iframe, body > div > iframe').forEach(iframe => {
+            const src = (iframe.src || '').toLowerCase();
+            const isOurPlayer = iframe.id === 'player-iframe';
+            const isAllowed = allowedEmbeds.some(e => src.includes(e));
+            if (!isOurPlayer && !isAllowed) {
+                iframe.remove();
+                console.warn('🚫 Injected ad iframe removed:', src);
+            }
+        });
+
+        // Kill injected <script> pointing to ad networks
+        document.querySelectorAll('script[src]').forEach(script => {
+            const src = (script.src || '').toLowerCase();
+            if (knownAdDomains.some(d => src.includes(d))) {
+                script.remove();
+                console.warn('🚫 Ad script removed:', src);
+            }
+        });
+
+        // Kill full-screen overlay divs injected on top of content
+        document.querySelectorAll('body > div').forEach(div => {
+            const style = window.getComputedStyle(div);
+            const isFixed = style.position === 'fixed';
+            const coversAll = parseInt(style.width) > window.innerWidth * 0.8 &&
+                              parseInt(style.height) > window.innerHeight * 0.8;
+            const zIndex = parseInt(style.zIndex) || 0;
+            const isOurs = div.id === 'video-player' || div.classList.contains('navbar') ||
+                           div.classList.contains('mobile-nav') || div.closest('nav');
+            if (isFixed && coversAll && zIndex > 100 && !isOurs) {
+                div.remove();
+                console.warn('🚫 Full-screen ad overlay removed');
+            }
+        });
+    }
+
+    // Run immediately and every 1.5 seconds
+    cleanAds();
+    setInterval(cleanAds, 1500);
+
+    // Watch for dynamically injected nodes
+    const observer = new MutationObserver(mutations => {
+        mutations.forEach(m => {
+            m.addedNodes.forEach(node => {
+                if (node.nodeType !== 1) return;
+                const tag = node.tagName.toLowerCase();
+                const src = (node.src || '').toLowerCase();
+                const id  = (node.id || '').toLowerCase();
+                const cls = (typeof node.className === 'string' ? node.className : '').toLowerCase();
+
+                // Block injected iframes that aren't our player
+                if (tag === 'iframe' && node.id !== 'player-iframe') {
+                    if (!allowedEmbeds.some(e => src.includes(e))) {
+                        node.remove();
+                        console.warn('🚫 MutationObserver blocked iframe:', src);
+                        return;
+                    }
+                }
+                // Block injected ad scripts
+                if (tag === 'script' && src && knownAdDomains.some(d => src.includes(d))) {
+                    node.remove();
+                    console.warn('🚫 MutationObserver blocked script:', src);
+                }
+                // Block classic ad div/span class names
+                if ((tag === 'div' || tag === 'span') &&
+                    (cls.includes('popunder') || cls.includes('pop-up') || 
+                     id.includes('popunder') || cls.includes('ad-overlay')) &&
+                    !node.closest('#video-player')) {
+                    node.remove();
+                    console.warn('🚫 MutationObserver blocked ad element');
+                }
+            });
+        });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+}
+
+// Override document.write used by legacy ad scripts
+const _origWrite = document.write.bind(document);
+document.write = function(html) {
+    const adPhrases = ['googlesyndication', 'doubleclick', 'popads', 'adsbygoogle', 'popcash'];
+    if (typeof html === 'string' && adPhrases.some(p => html.includes(p))) {
+        console.warn('🚫 document.write ad blocked');
+        return;
+    }
+    _origWrite(html);
+};
+
+// Run ad blocking immediately on page load (before player starts)
+blockPopupAds();
+blockAdOverlays();
 
 // Change streaming source
 function changeSource() {
